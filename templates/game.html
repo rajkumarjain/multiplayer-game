@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ludo Game - Room {{ game_id }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/game.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-header">
+            <h1>🎲 Ludo Game</h1>
+            <div class="game-info">
+                <span class="game-id">Room: {{ game_id }}</span>
+                <button id="copyGameId" class="btn btn-small">Copy ID</button>
+            </div>
+        </div>
+
+        <div class="game-layout">
+            <div class="players-panel">
+                <h3>Players</h3>
+                <div id="playersList" class="players-list"></div>
+                
+                <div class="game-controls">
+                    <button id="startGameBtn" class="btn btn-primary" style="display: none;">Start Game</button>
+                    <button id="leaveGameBtn" class="btn btn-danger">Leave Game</button>
+                </div>
+
+                <div class="dice-section">
+                    <div id="diceContainer" class="dice-container">
+                        <div id="dice" class="dice">
+                            <div class="dice-face" data-value="1">⚀</div>
+                            <div class="dice-face" data-value="2">⚁</div>
+                            <div class="dice-face" data-value="3">⚂</div>
+                            <div class="dice-face" data-value="4">⚃</div>
+                            <div class="dice-face" data-value="5">⚄</div>
+                            <div class="dice-face" data-value="6">⚅</div>
+                        </div>
+                    </div>
+                    <button id="rollDiceBtn" class="btn btn-primary" disabled>Roll Dice</button>
+                    <button id="passTurnBtn" class="btn btn-secondary" disabled style="display: none;">Pass Turn</button>
+                    <div id="currentTurn" class="current-turn"></div>
+                </div>
+            </div>
+
+            <div class="board-container">
+                <div id="ludoBoard" class="ludo-board">
+                    <!-- Red Home Area (Top Left) -->
+                    <div class="home-area red-home">
+                        <div class="home-title">RED</div>
+                        <div class="home-squares">
+                            <div class="home-square" data-color="red" data-piece="0"></div>
+                            <div class="home-square" data-color="red" data-piece="1"></div>
+                            <div class="home-square" data-color="red" data-piece="2"></div>
+                            <div class="home-square" data-color="red" data-piece="3"></div>
+                        </div>
+                    </div>
+
+                    <!-- Blue Home Area (Top Right) -->
+                    <div class="home-area blue-home">
+                        <div class="home-title">BLUE</div>
+                        <div class="home-squares">
+                            <div class="home-square" data-color="blue" data-piece="0"></div>
+                            <div class="home-square" data-color="blue" data-piece="1"></div>
+                            <div class="home-square" data-color="blue" data-piece="2"></div>
+                            <div class="home-square" data-color="blue" data-piece="3"></div>
+                        </div>
+                    </div>
+
+                    <!-- Green Home Area (Bottom Right) -->
+                    <div class="home-area green-home">
+                        <div class="home-title">GREEN</div>
+                        <div class="home-squares">
+                            <div class="home-square" data-color="green" data-piece="0"></div>
+                            <div class="home-square" data-color="green" data-piece="1"></div>
+                            <div class="home-square" data-color="green" data-piece="2"></div>
+                            <div class="home-square" data-color="green" data-piece="3"></div>
+                        </div>
+                    </div>
+
+                    <!-- Yellow Home Area (Bottom Left) -->
+                    <div class="home-area yellow-home">
+                        <div class="home-title">YELLOW</div>
+                        <div class="home-squares">
+                            <div class="home-square" data-color="yellow" data-piece="0"></div>
+                            <div class="home-square" data-color="yellow" data-piece="1"></div>
+                            <div class="home-square" data-color="yellow" data-piece="2"></div>
+                            <div class="home-square" data-color="yellow" data-piece="3"></div>
+                        </div>
+                    </div>
+
+                    <!-- Center Area -->
+                    <div class="center-area">
+                        <div class="center-star">★</div>
+                    </div>
+
+                    <!-- Path Squares (will be created by JavaScript) -->
+                    <div class="path-container" id="pathContainer">
+                        <!-- Path squares will be dynamically created here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-section">
+            <div class="chat-messages" id="chatMessages"></div>
+            <div class="chat-input">
+                <input type="text" id="chatInput" placeholder="Type a message..." maxlength="100">
+                <button id="sendChatBtn" class="btn btn-small">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+    <div id="gameOverModal" class="modal">
+        <div class="modal-content">
+            <h2>Game Over!</h2>
+            <p id="winnerMessage"></p>
+            <button id="playAgainBtn" class="btn btn-primary">Play Again</button>
+            <button id="backToMenuBtn" class="btn btn-secondary">Back to Menu</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>
+        const GAME_ID = '{{ game_id }}';
+    </script>
+    <script src="{{ url_for('static', filename='js/game.js') }}"></script>
+</body>
+</html>

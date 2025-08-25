@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multiplayer Ludo Game</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="game-title">🎲 Multiplayer Ludo</h1>
+            <p class="game-subtitle">Play the classic board game with friends online!</p>
+        </div>
+
+        <div class="main-menu">
+            <div class="menu-card">
+                <h2>Create New Game</h2>
+                <form id="createGameForm" class="game-form">
+                    <div class="form-group">
+                        <label for="playerName">Your Name:</label>
+                        <input type="text" id="playerName" name="playerName" required maxlength="20" placeholder="Enter your name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Choose Your Color:</label>
+                        <div class="color-selection">
+                            <label class="color-option">
+                                <input type="radio" name="color" value="red" checked>
+                                <span class="color-circle red"></span>
+                                <span class="color-name">Red</span>
+                            </label>
+                            <label class="color-option">
+                                <input type="radio" name="color" value="blue">
+                                <span class="color-circle blue"></span>
+                                <span class="color-name">Blue</span>
+                            </label>
+                            <label class="color-option">
+                                <input type="radio" name="color" value="green">
+                                <span class="color-circle green"></span>
+                                <span class="color-name">Green</span>
+                            </label>
+                            <label class="color-option">
+                                <input type="radio" name="color" value="yellow">
+                                <span class="color-circle yellow"></span>
+                                <span class="color-name">Yellow</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Create Game</button>
+                </form>
+            </div>
+
+            <div class="menu-card">
+                <h2>Join Existing Game</h2>
+                <form id="joinGameForm" class="game-form">
+                    <div class="form-group">
+                        <label for="joinPlayerName">Your Name:</label>
+                        <input type="text" id="joinPlayerName" name="playerName" required maxlength="20" placeholder="Enter your name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="gameId">Game ID:</label>
+                        <input type="text" id="gameId" name="gameId" required placeholder="Enter game ID">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Choose Your Color:</label>
+                        <div class="color-selection">
+                            <label class="color-option">
+                                <input type="radio" name="joinColor" value="red" checked>
+                                <span class="color-circle red"></span>
+                                <span class="color-name">Red</span>
+                            </label>
+                            <label class="color-option">
+                                <input type="radio" name="joinColor" value="blue">
+                                <span class="color-circle blue"></span>
+                                <span class="color-name">Blue</span>
+                            </label>
+                            <label class="color-option">
+                                <input type="radio" name="joinColor" value="green">
+                                <span class="color-circle green"></span>
+                                <span class="color-name">Green</span>
+                            </label>
+                            <label class="color-option">
+                                <input type="radio" name="joinColor" value="yellow">
+                                <span class="color-circle yellow"></span>
+                                <span class="color-name">Yellow</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-secondary">Join Game</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="game-rules">
+            <h3>How to Play</h3>
+            <ul>
+                <li>Roll the dice to move your pieces around the board</li>
+                <li>Get all 4 pieces to the center to win</li>
+                <li>Roll a 6 to get a piece out of home</li>
+                <li>Land on opponents to send them back home</li>
+                <li>Safe squares protect your pieces</li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Join Game Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+</head>
+<body>
+    <h1>Join Game Test</h1>
+    
+    <div id="step1">
+        <h2>Step 1: Create Game</h2>
+        <button onclick="createGame()">Create Game</button>
+        <div id="gameId"></div>
+    </div>
+    
+    <div id="step2" style="display:none;">
+        <h2>Step 2: Join Game</h2>
+        <input type="text" id="joinGameId" placeholder="Enter game ID">
+        <button onclick="joinGame()">Join Game</button>
+        <div id="joinResult"></div>
+    </div>
+    
+    <div id="log"></div>
+    
+    <script>
+        const socket = io('http://localhost:5000');
+        let currentGameId = null;
+        
+        function log(message) {
+            document.getElementById('log').innerHTML += '<p>' + message + '</p>';
+        }
+        
+        function createGame() {
+            socket.emit('create_game', {
+                player_name: 'TestPlayer1',
+                color: 'red'
+            });
+        }
+        
+        function joinGame() {
+            const gameId = document.getElementById('joinGameId').value.trim();
+            if (!gameId) {
+                log('❌ Please enter a game ID');
+                return;
+            }
+            
+            socket.emit('join_game', {
+                game_id: gameId,
+                player_name: 'TestPlayer2',
+                color: 'blue'
+            });
+        }
+        
+        socket.on('game_created', (data) => {
+            currentGameId = data.game_id;
+            document.getElementById('gameId').innerHTML = 
+                `✅ Game created! ID: <strong>${currentGameId}</strong>`;
+            document.getElementById('joinGameId').value = currentGameId;
+            document.getElementById('step2').style.display = 'block';
+            log('✅ Game created with ID: ' + currentGameId);
+        });
+        
+        socket.on('game_joined', (data) => {
+            document.getElementById('joinResult').innerHTML = 
+                `✅ Successfully joined game: ${data.game_id}`;
+            log('✅ Successfully joined game: ' + data.game_id);
+        });
+        
+        socket.on('player_joined', (data) => {
+            log('👤 Player joined: ' + data.player_name + ' (' + data.color + ')');
+        });
+        
+        socket.on('error', (data) => {
+            document.getElementById('joinResult').innerHTML = 
+                `❌ Error: ${data.message}`;
+            log('❌ Error: ' + data.message);
+        });
+        
+        socket.on('connect', () => {
+            log('🔌 Connected to server');
+        });
+        
+        socket.on('disconnect', () => {
+            log('🔌 Disconnected from server');
+        });
+    </script>
+</body>
+</html>
