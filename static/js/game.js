@@ -139,24 +139,44 @@ function createSimplePath() {
     // Create proper Ludo board path (52 squares around the board)
     const pathPositions = [];
     
-    // Top horizontal path (left to right) - Red to Blue side
-    for (let i = 0; i < 6; i++) {
-        pathPositions.push({ x: 244 + (i * 35), y: 204, position: i, color: i === 0 ? 'red-start' : null });
+    // Red starting area and path (positions 0-12)
+    for (let i = 0; i < 13; i++) {
+        pathPositions.push({ 
+            x: 244 + (i * 30), 
+            y: 204, 
+            position: i, 
+            color: i === 0 ? 'red-start' : null 
+        });
     }
     
-    // Right vertical path (top to bottom) - Blue side
-    for (let i = 0; i < 6; i++) {
-        pathPositions.push({ x: 419, y: 239 + (i * 35), position: 6 + i, color: i === 0 ? 'blue-start' : null });
+    // Blue starting area and path (positions 13-25)
+    for (let i = 0; i < 13; i++) {
+        pathPositions.push({ 
+            x: 419, 
+            y: 239 + (i * 30), 
+            position: 13 + i, 
+            color: i === 0 ? 'blue-start' : null 
+        });
     }
     
-    // Bottom horizontal path (right to left) - Blue to Green side
-    for (let i = 0; i < 6; i++) {
-        pathPositions.push({ x: 384 - (i * 35), y: 379, position: 12 + i, color: i === 5 ? 'green-start' : null });
+    // Green starting area and path (positions 26-38)
+    for (let i = 0; i < 13; i++) {
+        pathPositions.push({ 
+            x: 384 - (i * 30), 
+            y: 379, 
+            position: 26 + i, 
+            color: i === 0 ? 'green-start' : null 
+        });
     }
     
-    // Left vertical path (bottom to top) - Green to Yellow side
-    for (let i = 0; i < 6; i++) {
-        pathPositions.push({ x: 174, y: 344 - (i * 35), position: 18 + i, color: i === 5 ? 'yellow-start' : null });
+    // Yellow starting area and path (positions 39-51)
+    for (let i = 0; i < 13; i++) {
+        pathPositions.push({ 
+            x: 174, 
+            y: 344 - (i * 30), 
+            position: 39 + i, 
+            color: i === 0 ? 'yellow-start' : null 
+        });
     }
     
     // Create path squares
@@ -168,14 +188,35 @@ function createSimplePath() {
         square.style.left = pos.x + 'px';
         square.style.top = pos.y + 'px';
         square.style.position = 'absolute';
+        square.style.width = '25px';
+        square.style.height = '25px';
+        square.style.border = '1px solid #ccc';
+        square.style.backgroundColor = '#f9f9f9';
+        square.style.display = 'flex';
+        square.style.alignItems = 'center';
+        square.style.justifyContent = 'center';
+        square.style.fontSize = '10px';
+        square.style.cursor = 'pointer';
         
         // Add special styling for start squares
         if (pos.color) {
             square.classList.add('start-square');
-            if (pos.color.includes('red')) square.classList.add('red-start');
-            if (pos.color.includes('blue')) square.classList.add('blue-start');
-            if (pos.color.includes('green')) square.classList.add('green-start');
-            if (pos.color.includes('yellow')) square.classList.add('yellow-start');
+            if (pos.color.includes('red')) {
+                square.classList.add('red-start');
+                square.style.backgroundColor = '#ffcccb';
+            }
+            if (pos.color.includes('blue')) {
+                square.classList.add('blue-start');
+                square.style.backgroundColor = '#add8e6';
+            }
+            if (pos.color.includes('green')) {
+                square.classList.add('green-start');
+                square.style.backgroundColor = '#90ee90';
+            }
+            if (pos.color.includes('yellow')) {
+                square.classList.add('yellow-start');
+                square.style.backgroundColor = '#ffffe0';
+            }
         }
         
         square.addEventListener('click', () => {
@@ -184,9 +225,6 @@ function createSimplePath() {
         
         pathContainer.appendChild(square);
     });
-    
-    // Add home stretch paths (colored paths leading to center)
-    createHomeStretches();
 }
 
 function createHomeStretches() {
@@ -438,14 +476,18 @@ function handlePieceClick(color, piece, location) {
     let actualLocation = 'home';
     if (gameState.board && gameState.board[color]) {
         console.log(`DEBUG: Board state for ${color}:`, gameState.board[color]);
-        if (gameState.board[color].path.includes(piece)) {
+        
+        // Check if piece is in path (now an object with positions)
+        if (gameState.board[color].path && typeof gameState.board[color].path === 'object' && piece in gameState.board[color].path) {
             actualLocation = 'path';
-        } else if (gameState.board[color].safe.includes(piece)) {
+        } else if (gameState.board[color].safe && gameState.board[color].safe.includes(piece)) {
             actualLocation = 'safe';
-        } else if (gameState.board[color].home.includes(piece)) {
+        } else if (gameState.board[color].home && gameState.board[color].home.includes(piece)) {
             actualLocation = 'home';
         } else {
             console.log(`DEBUG: Piece ${piece} not found in any location!`);
+            showNotification('Piece not found in valid location!', 'error');
+            return;
         }
     }
     
@@ -457,7 +499,7 @@ function handlePieceClick(color, piece, location) {
         return;
     }
     
-    // This would emit a move_piece event to the server
+    // Emit move_piece event to the server
     socket.emit('move_piece', {
         color: color,
         piece: parseInt(piece),
@@ -600,27 +642,45 @@ function updateBoardDisplay(gameState) {
                 const pieceElement = document.createElement('div');
                 pieceElement.className = `piece ${color}`;
                 pieceElement.textContent = pieceId + 1;
+                pieceElement.dataset.color = color;
+                pieceElement.dataset.piece = pieceId;
+                pieceElement.dataset.location = 'home';
+                
+                // Add click handler for home pieces
+                pieceElement.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    handlePieceClick(color, pieceId, 'home');
+                });
+                
                 homeSquare.appendChild(pieceElement);
                 homeSquare.classList.add('occupied');
             }
         });
         
-        // Show pieces on path
-        pieces.path.forEach(pieceId => {
-            // For now, just place them on the first path square as a placeholder
-            const pathSquare = document.querySelector('[data-position="0"]');
-            if (pathSquare) {
-                const pieceElement = document.createElement('div');
-                pieceElement.className = `piece ${color}`;
-                pieceElement.textContent = pieceId + 1;
-                pieceElement.style.position = 'absolute';
-                pieceElement.style.top = '5px';
-                pieceElement.style.left = '5px';
-                pieceElement.style.zIndex = '10';
-                pathSquare.appendChild(pieceElement);
-                pathSquare.classList.add('occupied');
-            }
-        });
+        // Show pieces on path with proper positioning
+        if (pieces.path && typeof pieces.path === 'object') {
+            Object.entries(pieces.path).forEach(([pieceId, position]) => {
+                const pathSquare = document.querySelector(`[data-position="${position}"]`);
+                if (pathSquare) {
+                    const pieceElement = document.createElement('div');
+                    pieceElement.className = `piece ${color}`;
+                    pieceElement.textContent = parseInt(pieceId) + 1;
+                    pieceElement.dataset.color = color;
+                    pieceElement.dataset.piece = pieceId;
+                    pieceElement.dataset.location = 'path';
+                    pieceElement.dataset.position = position;
+                    
+                    // Add click handler for path pieces
+                    pieceElement.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        handlePieceClick(color, parseInt(pieceId), 'path');
+                    });
+                    
+                    pathSquare.appendChild(pieceElement);
+                    pathSquare.classList.add('occupied');
+                }
+            });
+        }
         
         // Show pieces in safe area (center)
         if (pieces.safe.length > 0) {

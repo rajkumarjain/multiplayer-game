@@ -23,12 +23,12 @@ class LudoGame:
         self.board = self.initialize_board()
     
     def initialize_board(self):
-        # Initialize empty board state
+        # Initialize board state with position tracking
         return {
-            'red': {'home': [0, 1, 2, 3], 'path': [], 'safe': []},
-            'blue': {'home': [0, 1, 2, 3], 'path': [], 'safe': []},
-            'green': {'home': [0, 1, 2, 3], 'path': [], 'safe': []},
-            'yellow': {'home': [0, 1, 2, 3], 'path': [], 'safe': []}
+            'red': {'home': [0, 1, 2, 3], 'path': {}, 'safe': []},
+            'blue': {'home': [0, 1, 2, 3], 'path': {}, 'safe': []},
+            'green': {'home': [0, 1, 2, 3], 'path': {}, 'safe': []},
+            'yellow': {'home': [0, 1, 2, 3], 'path': {}, 'safe': []}
         }
     
     def add_player(self, player_id, player_name, color):
@@ -51,6 +51,16 @@ class LudoGame:
         self.dice_value = random.randint(1, 6)
         return self.dice_value
     
+    def get_start_position(self, color):
+        """Get the starting position on the path for each color"""
+        start_positions = {
+            'red': 0,
+            'blue': 13,
+            'green': 26,
+            'yellow': 39
+        }
+        return start_positions[color]
+    
     def move_piece(self, player_id, color, piece, from_location):
         # Basic move validation
         if player_id not in self.players:
@@ -68,14 +78,15 @@ class LudoGame:
         print(f"DEBUG: Attempting to move {color} piece {piece} from {from_location} with dice value {self.dice_value}")
         print(f"DEBUG: Current board state for {color}: {self.board[color]}")
         
-        # Enhanced move logic
+        # Enhanced move logic with position tracking
         if from_location == 'home':
             # Can only move from home with a 6
             if self.dice_value == 6:
                 if piece in self.board[color]['home']:
                     self.board[color]['home'].remove(piece)
-                    self.board[color]['path'].append(piece)
-                    print(f"DEBUG: Moved piece {piece} from home to path")
+                    start_pos = self.get_start_position(color)
+                    self.board[color]['path'][piece] = start_pos
+                    print(f"DEBUG: Moved piece {piece} from home to path position {start_pos}")
                     print(f"DEBUG: New board state for {color}: {self.board[color]}")
                     return True
                 else:
@@ -85,12 +96,14 @@ class LudoGame:
         elif from_location == 'path':
             # Move piece along the path
             if piece in self.board[color]['path']:
-                # For now, just keep it in path (in full game, would move to specific positions)
-                # In a complete implementation, you'd track exact positions and move accordingly
-                print(f"DEBUG: Moved piece {piece} along path by {self.dice_value} steps")
+                current_pos = self.board[color]['path'][piece]
+                new_pos = (current_pos + self.dice_value) % 52  # 52 squares on the path
+                self.board[color]['path'][piece] = new_pos
+                print(f"DEBUG: Moved piece {piece} from position {current_pos} to {new_pos}")
+                print(f"DEBUG: New board state for {color}: {self.board[color]}")
                 return True
             else:
-                print(f"DEBUG: Piece {piece} not found in path. Path contains: {self.board[color]['path']}")
+                print(f"DEBUG: Piece {piece} not found in path. Path contains: {list(self.board[color]['path'].keys())}")
         
         print(f"DEBUG: Move not allowed")
         return False
